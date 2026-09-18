@@ -16,7 +16,7 @@
     <div class="container">
 
         <div class="page setting hidden">
-            <h2>Version <span id="version">1.0.8</span></h2>
+            <h2>Version <span id="version">1.0.9</span></h2>
             <div>
                 <span>LLM Model Name:</span>
                 <input type="text" id="inp-llm-model-name" placeholder="gemini-2.5-flash">
@@ -91,10 +91,13 @@
                         <h1>Gallery</h1>
                         <!-- <p class="gallery-subtitle">Your images stay on this device.</p> -->
                     </div>
-                    <label class="gallery-add-button" for="gallery-file-input">
-                        <span aria-hidden="true">+</span>
-                        Add images
-                    </label>
+                    <div class="gallery-header-actions">
+                        <button class="gallery-notes-button" id="notes-button" type="button">Notes</button>
+                        <label class="gallery-add-button" for="gallery-file-input">
+                            <span aria-hidden="true">+</span>
+                            Add images
+                        </label>
+                    </div>
                     <input id="gallery-file-input" type="file" accept="image/*" multiple hidden>
                 </header>
                 <div class="gallery-status" id="gallery-status" role="status" aria-live="polite"></div>
@@ -120,6 +123,19 @@
                 <div class="gallery-preview-actions">
                     <button class="gallery-download-button" id="preview-download" type="button">Download</button>
                     <button class="gallery-delete-button" id="preview-delete" type="button">Delete image</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-modal hidden" id="notes-modal" role="dialog" aria-modal="true">
+            <div class="notes-panel">
+                <div class="notes-header">
+                    <button class="notes-modal-close" id="notes-close" type="button" aria-label="Close notes">×</button>
+                </div>
+                <textarea id="notes-input" placeholder="Write your note here…" spellcheck="true"></textarea>
+                <div class="notes-footer">
+                    <span id="notes-status" role="status" aria-live="polite"></span>
+                    <button class="notes-save-button" id="notes-save" type="button">Save note</button>
                 </div>
             </div>
         </div>

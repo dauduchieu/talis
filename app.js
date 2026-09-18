@@ -93,10 +93,11 @@ const isCompletedToday = task => {
 }
 
 const DB_NAME = "talis"
-const DB_VERSION = 3
+const DB_VERSION = 4
 const TASK_STORE = "tasks"
 const SETTINGS_STORE = "settings"
 const IMAGE_STORE = "images"
+const NOTE_STORE = "notes"
 
 const openTaskDB = () => new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
@@ -112,6 +113,9 @@ const openTaskDB = () => new Promise((resolve, reject) => {
         if (!db.objectStoreNames.contains(IMAGE_STORE)) {
             const images = db.createObjectStore(IMAGE_STORE, { keyPath: "fileId", autoIncrement: true })
             images.createIndex("uploadedAt", "uploadedAt")
+        }
+        if (!db.objectStoreNames.contains(NOTE_STORE)) {
+            db.createObjectStore(NOTE_STORE, { keyPath: "id" })
         }
     }
     request.onsuccess = () => resolve(request.result)
@@ -147,6 +151,28 @@ const removeImage = async fileId => {
     })
 }
 
+const readNote = async () => {
+    const db = await galleryDB()
+    return new Promise((resolve, reject) => {
+        const request = db.transaction(NOTE_STORE, "readonly").objectStore(NOTE_STORE).get("current")
+        request.onsuccess = () => resolve(request.result?.content || "")
+        request.onerror = () => reject(request.error)
+    })
+}
+
+const writeNote = async content => {
+    const db = await galleryDB()
+    return new Promise((resolve, reject) => {
+        const request = db.transaction(NOTE_STORE, "readwrite").objectStore(NOTE_STORE).put({
+            id: "current",
+            content,
+            updatedAt: Date.now()
+        })
+        request.onsuccess = () => resolve(content)
+        request.onerror = () => reject(request.error)
+    })
+}
+
 const formatBytes = bytes => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -165,6 +191,9 @@ const galleryGrid = $("#gallery-grid")
 const galleryEmpty = $("#gallery-empty")
 const galleryStatus = $("#gallery-status")
 const galleryModal = $("#gallery-modal")
+const notesModal = $("#notes-modal")
+const notesInput = $("#notes-input")
+const notesStatus = $("#notes-status")
 
 const renderGallery = () => {
     galleryGrid.replaceChildren()
@@ -209,6 +238,21 @@ const closePreview = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     previewUrl = ""
 }
+
+const openNotes = async () => {
+    notesStatus.textContent = "Loading note…"
+    notesModal.classList.remove("hidden")
+    try {
+        notesInput.value = await readNote()
+        notesStatus.textContent = ""
+        notesInput.focus()
+    } catch (error) {
+        notesStatus.textContent = "Could not load the note."
+        console.error("Could not load note:", error)
+    }
+}
+
+const closeNotes = () => notesModal.classList.add("hidden")
 
 const loadGallery = async () => {
     galleryImages = await readImages()
@@ -290,8 +334,29 @@ $("#preview-delete").addEventListener("click", async event => {
         console.error("Could not delete gallery image:", error)
     }
 })
+
+$("#notes-button").addEventListener("click", openNotes)
+$("#notes-close").addEventListener("click", closeNotes)
+notesModal.addEventListener("click", event => {
+    if (event.target === notesModal) closeNotes()
+})
+$("#notes-save").addEventListener("click", async () => {
+    const button = $("#notes-save")
+    button.disabled = true
+    notesStatus.textContent = "Saving…"
+    try {
+        await writeNote(notesInput.value)
+        notesStatus.textContent = "Note saved"
+    } catch (error) {
+        notesStatus.textContent = "Could not save the note."
+        console.error("Could not save note:", error)
+    } finally {
+        button.disabled = false
+    }
+})
 document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !galleryModal.classList.contains("hidden")) closePreview()
+    if (event.key === "Escape" && !notesModal.classList.contains("hidden")) closeNotes()
 })
 
 const readTasks = async () => {
@@ -573,6 +638,7 @@ $("#btn-confirm-reset").addEventListener("click", async () => {
         await clearAllData()
         tasks = []
         galleryImages = []
+        notesInput.value = ""
         currentSettings = {}
         renderTask()
         renderHistory()
@@ -584,6 +650,7 @@ $("#btn-confirm-reset").addEventListener("click", async () => {
         $("#reset-confirm").classList.add("hidden")
         $("#reset-status").textContent = "All data deleted."
         closePreview()
+        closeNotes()
     } catch (error) {
         $("#reset-status").textContent = "Could not delete all data."
         console.error("Could not reset all data:", error)
