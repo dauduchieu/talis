@@ -1,9 +1,11 @@
 import "./swipe.js"
 const $ = document.querySelector.bind(document)
+let serviceWorkerRegistration = null
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(registration => {
+            serviceWorkerRegistration = registration
             const checkForUpdate = () => registration.update().catch(() => {})
             checkForUpdate()
             window.setInterval(checkForUpdate, 5 * 60 * 1000)
@@ -77,6 +79,12 @@ const isOverdueToday = task => {
     if (task.doneTime || !isToday(task.datetime)) return false
     const date = new Date(task.datetime)
     return !Number.isNaN(date.getTime()) && date.getTime() < Date.now()
+}
+
+const isCompletedToday = task => {
+    if (!task.doneTime) return false
+    if (task.doneAt) return isToday(task.doneAt)
+    return task.doneTime.endsWith(datetime2tasktime(new Date()).slice(5))
 }
 
 const DB_NAME = "talis"
@@ -358,7 +366,7 @@ const loadTasks = async () => {
 }
 
 const renderTask = () => {
-    $(".page.home .task-list").innerHTML = tasks.filter(task => !task.doneTime).map(task => `
+    $(".page.home .task-list").innerHTML = tasks.filter(task => !task.doneTime || isCompletedToday(task)).map(task => `
         <div class="task${task.doneTime ? " done" : ""}${isOverdueToday(task) ? " overdue" : ""}" data-task-id="${task.id}">
             <span class="task-name">${task.name}</span>
             <span class="task-time">${task.time}</span>
@@ -497,6 +505,30 @@ $("#btn-save-setting").addEventListener("click", async () => {
     }
 })
 
+$("#btn-update-app").addEventListener("click", async event => {
+    const status = $("#update-status")
+    const button = event.currentTarget
+    if (!navigator.onLine) {
+        status.textContent = "Offline - using current version"
+        return
+    }
+
+    button.disabled = true
+    status.textContent = "Checking for updates…"
+    try {
+        const response = await fetch("./index.html", { cache: "reload" })
+        if (!response.ok) throw new Error("Update check failed")
+        await caches.delete("talis-shell-v2")
+        if (serviceWorkerRegistration) await serviceWorkerRegistration.update()
+        status.textContent = "Updated - reloading…"
+        window.location.reload()
+    } catch (error) {
+        status.textContent = "Could not update; current version kept"
+        button.disabled = false
+        console.error("Could not update app:", error)
+    }
+})
+
 let resetCode = ""
 
 $("#btn-reset-all").addEventListener("click", () => {
@@ -550,7 +582,9 @@ const setTaskDone = async (element, done) => {
     if (done && taskData.doneTime) return
 
     const previousDoneTime = taskData.doneTime
+    const previousDoneAt = taskData.doneAt
     taskData.doneTime = done ? datetime2tasktime(new Date()) : ""
+    taskData.doneAt = done ? new Date().toISOString() : ""
 
     try {
         await writeTask(taskData)
@@ -558,6 +592,7 @@ const setTaskDone = async (element, done) => {
         renderHistory()
     } catch (error) {
         taskData.doneTime = previousDoneTime
+        taskData.doneAt = previousDoneAt
         console.error("Could not update task:", error)
     }
 }

@@ -142,6 +142,10 @@ input {
     padding-top: 20px;
     border-top: 1px solid #e1ded7;
 }
+.settings-update { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.settings-update button { padding: 7px 10px; border: 1px solid #bbb6ad; border-radius: 6px; background: transparent; cursor: pointer; font-size: .78rem; }
+.settings-update button:hover { background: #eeeae2; }
+.settings-update span { color: #88847d; font-size: .75rem; }
 .settings-reset h3 { margin-bottom: 5px; font-size: 1rem; font-weight: 600; }
 .settings-reset p { color: #88847d; font-size: .78rem; line-height: 1.4; }
 .settings-reset button { margin: 10px 6px 0 0; padding: 7px 10px; border: 1px solid #bbb6ad; border-radius: 6px; background: transparent; cursor: pointer; font-size: .78rem; }

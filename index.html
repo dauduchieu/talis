@@ -51,7 +51,7 @@
         </div>
 
         <div class="page setting hidden">
-            <h2>Version <span id="version">1.0.2</span></h2>
+            <h2>Version <span id="version">1.0.3</span></h2>
             <div>
                 <span>LLM Model Name:</span>
                 <input type="text" id="inp-llm-model-name" placeholder="gemini-2.5-flash">
@@ -65,6 +65,10 @@
                 <input type="text" id="inp-g-key" placeholder="gkeyxxx">
             </div>
             <input type="submit" value="Save Settings" id="btn-save-setting">
+            <div class="settings-update">
+                <button type="button" id="btn-update-app">Update app</button>
+                <span id="update-status" role="status" aria-live="polite"></span>
+            </div>
             <div class="settings-reset">
                 <h3>Reset all data</h3>
                 <p>This permanently deletes <span style="font-weight: bolder; color: #ff3535;">everything</span>.</p>
