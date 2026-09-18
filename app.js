@@ -345,8 +345,11 @@ const writeSettings = async settings => {
     })
 }
 
+let currentSettings = {}
+
 const loadSettings = async () => {
     const settings = await readSettings()
+    currentSettings = settings
 
     $("#inp-llm-model-name").value = settings.llmModelName || ""
     $("#inp-llm-api-key").value = settings.llmApiKey || ""
@@ -441,7 +444,7 @@ const downloadICS = (summary, startDate, endDate) => {
 $("#btn-add-task").addEventListener("click", async () => {
     const datetime = $("#inp-task-datetime").value.trim()
     const taskName = $("#inp-task-name").value.trim()
-    const settings = await readSettings()
+    const settings = currentSettings
 
     if (taskName === "") { return }
 
@@ -468,13 +471,15 @@ $("#btn-add-task").addEventListener("click", async () => {
         doneTime: ""
     }
 
+    // Keep the download inside the original click gesture to avoid browser prompts.
+    const startDate = new Date(datetime)
+    if (!Number.isNaN(startDate.getTime())) {
+        downloadICS(taskName, startDate, new Date(startDate.getTime() + 60 * 60 * 1000))
+    }
+
     try {
         await writeTask(task)
         tasks.push(task)
-        const startDate = new Date(datetime)
-        if (!Number.isNaN(startDate.getTime())) {
-            downloadICS(taskName, startDate, new Date(startDate.getTime() + 60 * 60 * 1000))
-        }
     } catch (error) {
         console.error("Could not save task:", error)
         return
@@ -507,6 +512,7 @@ $("#btn-save-setting").addEventListener("click", async () => {
 
     try {
         await writeSettings(settings)
+        currentSettings = settings
         activePage("home")
     } catch (error) {
         console.error("Could not save settings:", error)
@@ -567,6 +573,7 @@ $("#btn-confirm-reset").addEventListener("click", async () => {
         await clearAllData()
         tasks = []
         galleryImages = []
+        currentSettings = {}
         renderTask()
         renderHistory()
         renderGallery()

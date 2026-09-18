@@ -14,44 +14,9 @@
 <body>
     
     <div class="container">
-        
-        <div class="page home">
-            <div class="task-list">
-                <!-- <div class="task">
-                    <span class="task-name">Vietnamese Poem LLM</span>
-                    <span class="task-time">1010·1802</span>
-                </div>
-                <div class="task">
-                    <span class="task-name">Tiny Axiom</span>
-                    <span class="task-time"></span>
-                </div> -->
-                <span>No task</span>
-            </div>
-        </div>
-
-        <div class="page add hidden">
-            <input type="text" id="inp-task-name" placeholder="Task">
-            <input type="datetime-local" id="inp-task-datetime">
-            <input type="submit" value="Add Task" id="btn-add-task">
-        </div>
-
-        <div class="page history hidden">
-            <div class="task-list">
-                <div class="task">
-                    <span class="task-name">Vietnamese Poem LLM</span>
-                    <span class="task-time">1010·1802</span>
-                    <span>[<span class="task-done-time">1002·1802</span>]</span>
-                </div>
-                <div class="task">
-                    <span class="task-name">Tiny Axiom</span>
-                    <span class="task-time"></span>
-                    <span>[<span class="task-done-time">1002·1802</span>]</span>
-                </div>
-            </div>
-        </div>
 
         <div class="page setting hidden">
-            <h2>Version <span id="version">1.0.6</span></h2>
+            <h2>Version <span id="version">1.0.7</span></h2>
             <div>
                 <span>LLM Model Name:</span>
                 <input type="text" id="inp-llm-model-name" placeholder="gemini-2.5-flash">
@@ -80,6 +45,41 @@
                     <button type="button" id="btn-cancel-reset">Cancel</button>
                 </div>
                 <p class="settings-reset-status" id="reset-status" role="status" aria-live="polite"></p>
+            </div>
+        </div>
+        
+        <div class="page home">
+            <div class="task-list">
+                <!-- <div class="task">
+                    <span class="task-name">Vietnamese Poem LLM</span>
+                    <span class="task-time">1010·1802</span>
+                </div>
+                <div class="task">
+                    <span class="task-name">Tiny Axiom</span>
+                    <span class="task-time"></span>
+                </div> -->
+                <!-- <span>No task</span> -->
+            </div>
+        </div>
+
+        <div class="page add hidden">
+            <input type="text" id="inp-task-name" placeholder="Task">
+            <input type="datetime-local" id="inp-task-datetime">
+            <input type="submit" value="Add Task" id="btn-add-task">
+        </div>
+
+        <div class="page history hidden">
+            <div class="task-list">
+                <div class="task">
+                    <span class="task-name">Vietnamese Poem LLM</span>
+                    <span class="task-time">1010·1802</span>
+                    <span>[<span class="task-done-time">1002·1802</span>]</span>
+                </div>
+                <div class="task">
+                    <span class="task-name">Tiny Axiom</span>
+                    <span class="task-time"></span>
+                    <span>[<span class="task-done-time">1002·1802</span>]</span>
+                </div>
             </div>
         </div>
 
