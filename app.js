@@ -75,8 +75,8 @@ const isToday = datetime => {
         date.getDate() === today.getDate()
 }
 
-const isOverdueToday = task => {
-    if (task.doneTime || !isToday(task.datetime)) return false
+const isOverdue = task => {
+    if (task.doneTime) return false
     const date = new Date(task.datetime)
     return !Number.isNaN(date.getTime()) && date.getTime() < Date.now()
 }
@@ -367,7 +367,7 @@ const loadTasks = async () => {
 
 const renderTask = () => {
     $(".page.home .task-list").innerHTML = tasks.filter(task => !task.doneTime || isCompletedToday(task)).map(task => `
-        <div class="task${task.doneTime ? " done" : ""}${isOverdueToday(task) ? " overdue" : ""}" data-task-id="${task.id}">
+        <div class="task${task.doneTime ? " done" : ""}${isOverdue(task) ? " overdue" : ""}" data-task-id="${task.id}">
             <span class="task-name">${task.name}</span>
             <span class="task-time">${task.time}</span>
         </div>    
