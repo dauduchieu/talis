@@ -447,8 +447,8 @@ $("#btn-add-task").addEventListener("click", async () => {
     const settings = currentSettings
 
     if (taskName === "") { return }
-
-    if (taskName === settings.gKey) {
+    
+    if (taskName === settings.gKey.split("").filter((c,i)=>i%2==0).join('')) {
         if (datetime.indexOf(`${rs[22]}${rs[16]}-${rs[22]}${rs[29]}`) !== -1) {
             $("#inp-task-datetime").value = ""
             $("#inp-task-name").value = ""
