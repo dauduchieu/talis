@@ -347,7 +347,7 @@ const loadTasks = async () => {
 }
 
 const renderTask = () => {
-    $(".page.home .task-list").innerHTML = tasks.filter(task => isToday(task.datetime) || !task.time).map(task => `
+    $(".page.home .task-list").innerHTML = tasks.filter(task => !task.doneTime).map(task => `
         <div class="task${task.doneTime ? " done" : ""}${isOverdueToday(task) ? " overdue" : ""}" data-task-id="${task.id}">
             <span class="task-name">${task.name}</span>
             <span class="task-time">${task.time}</span>
