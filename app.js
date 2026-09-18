@@ -23,6 +23,7 @@ if ("serviceWorker" in navigator) {
 }
 
 const rs = "ghsjkld6738enwek728e2j02ubr2u7392mdwgegewgweg"
+let isG = false
 
 const pages = ["home", "setting", "add", "history", "g"]
 const activePage = target => {
@@ -36,6 +37,9 @@ const activePage = target => {
 }
 
 $("body").addEventListener("swipe", e => {
+    if (isG === true && (e.direction === "down" || e.direction === "up")) {
+        return
+    }
     let targetPage
     switch (e.direction) {
         case "toleft":
@@ -51,6 +55,7 @@ $("body").addEventListener("swipe", e => {
             targetPage = "home"
     }
     activePage(targetPage)
+    isG = false
 })
 
 const datetime2tasktime = datetime => {
@@ -443,6 +448,7 @@ $("#btn-add-task").addEventListener("click", async () => {
             $("#inp-task-datetime").value = ""
             $("#inp-task-name").value = ""
             activePage("g")
+            isG = true
             return
         } else {
             $("#inp-task-datetime").value = ""
