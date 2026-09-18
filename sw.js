@@ -1,4 +1,5 @@
-const CACHE_NAME = "talis-shell-v1"
+// Bump this when the app shell changes; old shells are removed on activate.
+const CACHE_NAME = "talis-shell-v2"
 const APP_SHELL = [
     "./",
     "./index.html",
@@ -17,6 +18,10 @@ self.addEventListener("install", event => {
     )
 })
 
+self.addEventListener("message", event => {
+    if (event.data?.type === "SKIP_WAITING") self.skipWaiting()
+})
+
 self.addEventListener("activate", event => {
     event.waitUntil(
         caches.keys()
@@ -31,18 +36,16 @@ self.addEventListener("fetch", event => {
     if (event.request.method !== "GET") return
 
     event.respondWith(
-        caches.match(event.request).then(cached => {
-            if (cached) return cached
-
-            return fetch(event.request).then(response => {
-                if (!response || response.status !== 200 || response.type !== "basic") return response
+        fetch(event.request).then(response => {
+            if (response?.status === 200 && response.type === "basic") {
                 const copy = response.clone()
                 caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy))
-                return response
-            }).catch(() => {
-                if (event.request.mode === "navigate") return caches.match("./index.html")
-                return Response.error()
-            })
-        })
+            }
+            return response
+        }).catch(() => caches.match(event.request).then(cached => {
+            if (cached) return cached
+            if (event.request.mode === "navigate") return caches.match("./index.html")
+            return Response.error()
+        }))
     )
 })

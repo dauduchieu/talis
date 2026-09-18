@@ -3,8 +3,19 @@ const $ = document.querySelector.bind(document)
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(error => {
-            console.error("Could not register service worker:", error)
+        navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(registration => {
+            const checkForUpdate = () => registration.update().catch(() => {})
+            checkForUpdate()
+            window.setInterval(checkForUpdate, 5 * 60 * 1000)
+
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") checkForUpdate()
+            })
+        }).catch(error => console.error("Could not register service worker:", error))
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+            // The new shell is active; reload once so the page uses its files.
+            if (navigator.serviceWorker.controller) window.location.reload()
         })
     })
 }
