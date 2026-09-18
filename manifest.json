@@ -1,0 +1,17 @@
+{
+    "name": "Talis",
+    "short_name": "Talis",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#f5f3ee",
+    "theme_color": "#1b1b1b",
+    "description": "A private task list and image archive",
+    "icons": [
+        {
+            "src": "assets/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
