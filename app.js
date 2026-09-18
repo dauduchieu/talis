@@ -443,6 +443,8 @@ $("#btn-add-task").addEventListener("click", async () => {
     const taskName = $("#inp-task-name").value.trim()
     const settings = await readSettings()
 
+    if (taskName === "") { return }
+
     if (taskName === settings.gKey) {
         if (datetime.indexOf(`${rs[22]}${rs[16]}-${rs[22]}${rs[29]}`) !== -1) {
             $("#inp-task-datetime").value = ""
