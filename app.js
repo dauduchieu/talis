@@ -272,26 +272,68 @@ persistGallery().then(persisted => {
     galleryStatus.textContent = persisted ? "Stored securely on this device" : "Stored on this device"
 })
 
+const saveGalleryImages = async files => {
+    const saved = await Promise.all(files.map(file => writeImage({
+        blob: file,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        uploadedAt: Date.now()
+    })))
+    galleryImages = [...saved, ...galleryImages].sort((a, b) => b.uploadedAt - a.uploadedAt)
+    renderGallery()
+    galleryStatus.textContent = `${galleryImages.length} image${galleryImages.length === 1 ? "" : "s"} in your archive`
+}
+
 $("#gallery-file-input").addEventListener("change", async event => {
     const files = [...event.target.files].filter(file => file.type.startsWith("image/"))
     if (!files.length) return
     galleryStatus.textContent = `Saving ${files.length} image${files.length > 1 ? "s" : ""}…`
     try {
-        const saved = await Promise.all(files.map(file => writeImage({
-            blob: file,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            uploadedAt: Date.now()
-        })))
-        galleryImages = [...saved, ...galleryImages].sort((a, b) => b.uploadedAt - a.uploadedAt)
-        renderGallery()
-        galleryStatus.textContent = `${galleryImages.length} image${galleryImages.length === 1 ? "" : "s"} in your archive`
+        await saveGalleryImages(files)
     } catch (error) {
         galleryStatus.textContent = "Could not save those images."
         console.error("Could not save gallery images:", error)
     } finally {
         event.target.value = ""
+    }
+})
+
+$("#paste-image-button").addEventListener("click", async event => {
+    const button = event.currentTarget
+    if (!navigator.clipboard?.read) {
+        galleryStatus.textContent = "Clipboard image access is not supported here."
+        return
+    }
+
+    button.disabled = true
+    galleryStatus.textContent = "Reading clipboard…"
+    try {
+        const clipboardItems = await navigator.clipboard.read()
+        let imageBlob = null
+        for (const item of clipboardItems) {
+            const imageType = item.types.find(type => type.startsWith("image/"))
+            if (imageType) {
+                imageBlob = await item.getType(imageType)
+                break
+            }
+        }
+
+        if (!imageBlob) {
+            galleryStatus.textContent = "No image found in the clipboard."
+            return
+        }
+
+        const extension = imageBlob.type.split("/")[1] || "png"
+        const pastedImage = new File([imageBlob], `pasted-image-${Date.now()}.${extension}`, {
+            type: imageBlob.type
+        })
+        await saveGalleryImages([pastedImage])
+    } catch (error) {
+        galleryStatus.textContent = "Could not paste the clipboard image."
+        console.error("Could not paste clipboard image:", error)
+    } finally {
+        button.disabled = false
     }
 })
 

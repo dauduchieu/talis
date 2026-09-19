@@ -230,6 +230,17 @@ textarea {
     font-size: .86rem;
 }
 .gallery-notes-button:hover { background: #e8e4dc; }
+.gallery-paste-button {
+    padding: 11px 16px;
+    border: 1px solid #1b1b1b;
+    border-radius: 999px;
+    background: #e8e4dc;
+    color: #1b1b1b;
+    cursor: pointer;
+    font-size: .86rem;
+}
+.gallery-paste-button:hover { background: #d9d3c9; }
+.gallery-paste-button:disabled { cursor: wait; opacity: .6; }
 .gallery-status { min-height: 20px; margin: 12px 0 20px; color: #89847b; font-size: .75rem; }
 
 .gallery-grid {
